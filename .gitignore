@@ -1,0 +1,19 @@
+HELP.md
+target/
+build/
+test_build/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**
+!**/src/test/**
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### MacOS ###
+.DS_Store
+
+### Test ###
+*.txt
