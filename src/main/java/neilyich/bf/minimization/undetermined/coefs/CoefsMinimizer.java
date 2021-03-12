@@ -186,7 +186,11 @@ public class CoefsMinimizer implements Minimizer {
         var mult = Implicant.multAll(implicants);
         var best = mult.stream().min(Comparator.comparingInt(impl -> calcRate(impl, intMapping)));
 
-        var coefs = remapImplicant(best.orElseThrow(), intMapping);
+        if (best.isEmpty()) {
+            return new ArrayList<>(result);
+        }
+
+        var coefs = remapImplicant(best.get(), intMapping);
         System.out.println("\nFound minimal solution:");
         int r = 1;
         for (var c : coefs) {

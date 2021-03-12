@@ -80,6 +80,9 @@ public class CoverageTable {
 
     // вычисление минимального покрытия таблицы
     public List<Implicant> calcMinCoverage() {
+        if(intersected.size() == 0) {
+            return new ArrayList<>();
+        }
         List<Set<Implicant>> terms = new ArrayList<>(columns.size());
         int varsCount = rows.size();
         for(var col: columns) {
@@ -90,9 +93,6 @@ public class CoverageTable {
                 term.add(impl);
             }
             terms.add(term);
-        }
-        if(intersected.size() == 0) {
-            return new ArrayList<>();
         }
         List<Integer> all = new ArrayList<>(intersected.size());
         for (int i = 0; i < intersected.size(); i++) {

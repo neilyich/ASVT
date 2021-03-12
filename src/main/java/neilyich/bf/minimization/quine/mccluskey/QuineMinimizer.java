@@ -9,12 +9,11 @@ import java.util.function.Supplier;
 
 // реализация алгоритма Квайна МакКласски
 public class QuineMinimizer implements Minimizer {
-    private int variablesCount;
     private List<List<Implicant>> stages;
 
     // получение минимизированной БФ
     public BooleanFunction minimize(BooleanFunction f) {
-        variablesCount = f.getVariablesCount();
+        int variablesCount = f.getVariablesCount();
         int maxN = (int) Math.round(Math.pow(2, variablesCount));
         if(f.getOnes().size() == maxN) {
             return BooleanFunction.of(List.of(new Implicant(variablesCount)));
@@ -22,7 +21,7 @@ public class QuineMinimizer implements Minimizer {
         stages = new ArrayList<>();
         log("Minimizing function:\n", f.toString(), "\n");
         var sdnf = f.sdnf();
-        var intersected = intersect(new HashSet<>(sdnf), 1);
+        var intersected = intersect(new HashSet<>(sdnf), 1, variablesCount);
         System.out.println("Finished intersecting implicants:");
         printStages();
         var table = new CoverageTable(new ArrayList<>(intersected), sdnf);
@@ -30,7 +29,7 @@ public class QuineMinimizer implements Minimizer {
     }
 
     // склеивание всех импликант между собой
-    private Set<Implicant> intersect(Set<Implicant> implicants, int stage) {
+    private Set<Implicant> intersect(Set<Implicant> implicants, int stage, int variablesCount) {
         stages.add(new ArrayList<>(implicants));
         Set<Implicant>[] groups = new Set[variablesCount + 1];
         for(int i = 0; i < groups.length; i++) {
@@ -56,7 +55,7 @@ public class QuineMinimizer implements Minimizer {
         if(newImplicants.size() > 1) {
             implicants.removeAll(used);
             newImplicants.addAll(implicants);
-            return intersect(newImplicants, stage + 1);
+            return intersect(newImplicants, stage + 1, variablesCount);
         }
         if(newImplicants.size() == 1) {
             implicants.removeAll(used);
