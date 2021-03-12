@@ -5,6 +5,7 @@ import neilyich.bf.minimization.Implicant;
 import neilyich.bf.minimization.Minimizer;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class CoefsMinimizer implements Minimizer {
     private int variablesCount;
@@ -19,7 +20,7 @@ public class CoefsMinimizer implements Minimizer {
         }
         allCoefs = new HashMap<>();
         Set<Integer> ones = new HashSet<>(f.getOnes());
-        List<List<Coef>> system = new ArrayList<>(f.getOnes().size());
+        List<Set<Coef>> system = new ArrayList<>(f.getOnes().size());
         for(int i = 0; i < maxN; i++) {
             var cfs = coefs(i, ones.contains(i));
             if(cfs != null) {
@@ -48,7 +49,41 @@ public class CoefsMinimizer implements Minimizer {
         return resolveCoefs(system);
     }
 
-    private List<Coef> coefs(int n, boolean f) {
+    private List<Implicant> resolveSystem(List<Set<Coef>> system) {
+        Set<Coef> coefsSet = new HashSet<>();
+        system.forEach(coefsSet::addAll);
+        List<Coef> coefs = new ArrayList<>(coefsSet);
+        coefs.sort(Comparator.comparingInt(o -> o.getImplicant().literalsCount()));
+        Set<Integer> ones = new HashSet<>();
+        for (int i = 0; i < coefs.size(); i++) {
+            coefs.forEach(c -> System.out.print(c.getImplicant().toString() + " "));
+            System.out.println();
+            var c = coefs.get(i);
+            List<Coef> uncovered = new ArrayList<>();
+            for (int j = 0; j < i; j++) {
+                uncovered.add(coefs.get(j));
+            }
+            var newOnes = c.getImplicant().generateOnes();
+            if(!ones.containsAll(newOnes)) {
+                uncovered.add(c);
+                ones.addAll(newOnes);
+            }
+            else {
+                System.out.println("skip");
+            }
+            for (int k = i + 1; k < coefs.size(); k++) {
+                if(!c.covers(coefs.get(k))) {
+                    uncovered.add(coefs.get(k));
+                }
+            }
+            coefs = uncovered;
+        }
+        coefs.forEach(c -> System.out.print(c.getImplicant().toString() + " "));
+
+        return coefs.stream().map(Coef::getImplicant).collect(Collectors.toList());
+    }
+
+    private Set<Coef> coefs(int n, boolean f) {
         boolean[] bits = new boolean[variablesCount];
         List<Integer> vars = new ArrayList<>();
         for (int i = 0; i < bits.length; i++) {
@@ -74,7 +109,7 @@ public class CoefsMinimizer implements Minimizer {
             implicants.add(newImpl);
         }
         if(f) {
-            List<Coef> coefs = new ArrayList<>(implicants.size());
+            Set<Coef> coefs = new HashSet<>(implicants.size());
             for(var impl: implicants) {
                 if(allCoefs.containsKey(impl)) {
                     var coef = allCoefs.get(impl);
@@ -110,8 +145,8 @@ public class CoefsMinimizer implements Minimizer {
         return null;
     }
 
-    private List<Implicant> resolveCoefs(List<List<Coef>> system) {
-        system.sort(Comparator.comparingInt(List::size));
+    private List<Implicant> resolveCoefs(List<Set<Coef>> system) {
+        system.sort(Comparator.comparingInt(Set::size));
         for (int i = 0; i < system.size(); i++) {
             if(system.get(i).isEmpty()) {
                 continue;
@@ -132,6 +167,10 @@ public class CoefsMinimizer implements Minimizer {
                     row.clear();
                     row.add(coef);
                 }
+                else {
+                    row.add(coef);
+                    row.remove(coef);
+                }
             }
             System.out.println("\nStage " + (i + 1) + ", K(" + coef.getImplicant().toString() + ") = "
                     + (coef.getValue() ? "1" : "0") + ":");
@@ -146,7 +185,7 @@ public class CoefsMinimizer implements Minimizer {
         return implicants;
     }
 
-    private List<Implicant> findBestSolution(List<List<Coef>> system) {
+    private List<Implicant> findBestSolution(List<Set<Coef>> system) {
         var implicants = remapImplicants(system);
         var mult = Implicant.multAll(implicants);
         if(mult.isEmpty()) {
@@ -161,7 +200,7 @@ public class CoefsMinimizer implements Minimizer {
         return getImplicants(bestImplicant);
     }
 
-    private List<Set<Implicant>> remapImplicants(List<List<Coef>> system) {
+    private List<Set<Implicant>> remapImplicants(List<Set<Coef>> system) {
         List<Set<Implicant>> res = new ArrayList<>(system.size());
         Map<Coef, Integer> coefsMapping = new HashMap<>();
         numbersMapping = new HashMap<>();
@@ -231,7 +270,9 @@ public class CoefsMinimizer implements Minimizer {
         return res;
     }
 
-    private void printSystem(List<List<Coef>> system) {
+    private void printSystem(List<Set<Coef>> systemSets) {
+        List<List<Coef>> system = new ArrayList<>(systemSets.size());
+        systemSets.forEach(line -> system.add(new ArrayList<>(line)));
         system.sort(Comparator.comparingInt(List::size));
         int k = 1;
         for(var line: system) {

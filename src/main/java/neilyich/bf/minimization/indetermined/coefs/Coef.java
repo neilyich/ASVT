@@ -27,7 +27,7 @@ public class Coef {
 
     @Override
     public int hashCode() {
-        return Objects.hash(value, implicant);
+        return Objects.hash(implicant);
     }
 
     public void incContainedTimes() {
@@ -54,5 +54,9 @@ public class Coef {
             res.add(coefs);
         }
         return res;
+    }
+
+    public boolean covers(Coef c) {
+        return implicant.covers(c.implicant);
     }
 }
