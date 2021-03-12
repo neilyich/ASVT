@@ -4,6 +4,7 @@ import lombok.Getter;
 
 import java.util.*;
 
+// реализация логики работы импликанты
 public class Implicant implements Comparable<Implicant>{
 
     private final Boolean[] literals;
@@ -17,6 +18,7 @@ public class Implicant implements Comparable<Implicant>{
         this.literals = new Boolean[variablesCount];
     }
 
+    // создание импликанты по числу переменных и ее порядковому номеру
     public Implicant(int variablesCount, int number) {
         this(variablesCount);
         int pos = 0;
@@ -44,6 +46,7 @@ public class Implicant implements Comparable<Implicant>{
         literals = Arrays.copyOf(implicant.literals, implicant.literals.length);
     }
 
+    // установка степени заданного литерала (val == null - исключение литерала из данной импликанты)
     public void set(int pos, Boolean val) {
         if(literals[pos] != null) {
             if(val != null) {
@@ -63,6 +66,7 @@ public class Implicant implements Comparable<Implicant>{
         literals[pos] = val;
     }
 
+    // если 2 импликанты можно склеить - возвращает полученную импликанту
     public static Optional<Implicant> tryIntersect(Implicant a, Implicant b) {
         if(a.literals.length != b.literals.length) {
             throw new RuntimeException("implicants of different lengths: " + a.literals.length + ", " + b.literals.length);
@@ -102,6 +106,7 @@ public class Implicant implements Comparable<Implicant>{
         return Optional.of(result);
     }
 
+    // true - если данная импликанта (this) покрывает вторую импликанту (implicant)
     public boolean covers(Implicant implicant) {
         if(literals.length != implicant.literals.length) {
             throw new RuntimeException("implicants of different lengths: " + literals.length + ", " + implicant.literals.length);
@@ -123,6 +128,7 @@ public class Implicant implements Comparable<Implicant>{
         return true;
     }
 
+    // получение строкового представления импликанты (с литералами)
     @Override
     public String toString() {
         var builder = new StringBuilder();
@@ -139,6 +145,7 @@ public class Implicant implements Comparable<Implicant>{
         return builder.toString();
     }
 
+    // получение строкового представления импликанты (в бинарном виде)
     public String toBinaryString() {
         var builder = new StringBuilder();
         for (Boolean l : literals) {
@@ -155,6 +162,7 @@ public class Implicant implements Comparable<Implicant>{
         return builder.toString();
     }
 
+    // сравнение двух импликант по числу литералов
     @Override
     public int compareTo(Implicant impl) {
         if(this.literals.length != impl.literals.length) {
@@ -199,6 +207,7 @@ public class Implicant implements Comparable<Implicant>{
         return result;
     }
 
+    // перемножение двух импликант
     public static Implicant mult(Implicant l, Implicant r) {
         if(l.literals.length != r.literals.length) {
             throw new RuntimeException("implicants of different lengths: " + l.literals.length + ", " + r.literals.length);
@@ -225,6 +234,7 @@ public class Implicant implements Comparable<Implicant>{
         return res;
     }
 
+    // перемножение двух ДНФ между собой
     public static Set<Implicant> mult(Set<Implicant> dnf1, Set<Implicant> dnf2) {
         Set<Implicant> res = new HashSet<>();
         for(var i: dnf1) {
@@ -235,6 +245,7 @@ public class Implicant implements Comparable<Implicant>{
         return res;
     }
 
+    // перемножение всех ДНФ между собой
     public static Set<Implicant> multAll(List<Set<Implicant>> implicants) {
         if(implicants.size() == 0) {
             return new HashSet<>();
@@ -253,6 +264,7 @@ public class Implicant implements Comparable<Implicant>{
         return literals[i];
     }
 
+    // генерация номеров наборов, на которых данная импликанта равна 1
     public Set<Integer> generateOnes() {
         var impl = new Implicant(variablesCount);
         for (int i = 0; i < literals.length; i++) {
@@ -283,6 +295,7 @@ public class Implicant implements Comparable<Implicant>{
         return res;
     }
 
+    // получение номера импликанты
     private int generateNumber() {
         int n = 0, p = 1;
         for (var literal : literals) {
@@ -296,6 +309,7 @@ public class Implicant implements Comparable<Implicant>{
         return n;
     }
 
+    // подсчет числа литералов в импликанте
     public int literalsCount() {
         int n = 0;
         for(var l: literals) {
@@ -306,6 +320,7 @@ public class Implicant implements Comparable<Implicant>{
         return n;
     }
 
+    // получение импликанты из строкового представления (пр.: x0x1!x3x5)
     public static Implicant fromString(int variablesCount, String implStr) {
         implStr = implStr.trim();
         if(!implStr.matches("(!?x\\d+)+")) {

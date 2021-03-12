@@ -5,6 +5,7 @@ import lombok.Setter;
 
 import java.util.*;
 
+// реализация логики работы булевой функции
 public class BooleanFunction {
     @Getter
     private int variablesCount;
@@ -15,6 +16,7 @@ public class BooleanFunction {
     @Getter
     private final Set<Integer> ones;
 
+    // конструктор принимает на вход строку, состоящую из 0 и 1
     public BooleanFunction(String s) {
         if(!isPowOf2(s.length())) {
             throw new RuntimeException("length of BF vector is not 2^n: " + s.length());
@@ -50,6 +52,7 @@ public class BooleanFunction {
         return (n & (n - 1)) == 0;
     }
 
+    // получение строкового представления БФ в виде ДНФ
     @Override
     public String toString() {
         if(sdnfForm.isEmpty()) {
@@ -67,6 +70,7 @@ public class BooleanFunction {
         return builder.append(sdnfForm.get(sdnfForm.size() - 1)).toString();
     }
 
+    // конструктор, позволяющий получить БФ из ее ДНФ (элемент списка - одно слагаемое)
     public static BooleanFunction of(List<Implicant> implicants) {
         if(implicants.isEmpty()) {
             return new BooleanFunction("0");
@@ -92,6 +96,7 @@ public class BooleanFunction {
         return f;
     }
 
+    // конструктор, позволяющий получить БФ из строки ее ДНФ (пр.: x0!x1 v !x0x1)
     public static BooleanFunction fromString(int variablesCount, String sdnfStr) {
         String[] impls = sdnfStr.split("\\s+v\\s+");
         List<Implicant> implicants = new ArrayList<>(impls.length);
@@ -101,6 +106,7 @@ public class BooleanFunction {
         return BooleanFunction.of(implicants);
     }
 
+    // подсчет числа литералов в представлении функции в виде СДНФ
     public int weight() {
         int w = 0;
         for(var s: sdnfForm) {
@@ -109,10 +115,12 @@ public class BooleanFunction {
         return w;
     }
 
+    // true - если обе БФ реализуют одну и ту же логическую функцию (но могут иметь разные ДНФ)
     public boolean isSame(BooleanFunction f) {
         return ones.equals(f.ones);
     }
 
+    // сравнение минимальности двух функций между собой
     public int compareSame(BooleanFunction f) {
         if(!isSame(f)) {
             throw new RuntimeException("Cant compare not same functions");
@@ -146,6 +154,7 @@ public class BooleanFunction {
         sdnfForm.sort(Implicant::compareTo);
     }
 
+    // возвращает только те импликанты, которых нет в БФ f
     public Set<Implicant> diff(BooleanFunction f) {
         Set<Implicant> s1 = new HashSet<>(sdnfForm);
         s1.removeAll(new HashSet<>(f.sdnfForm));

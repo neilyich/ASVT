@@ -1,4 +1,4 @@
-package neilyich.bf.minimization.indetermined.coefs;
+package neilyich.bf.minimization.undetermined.coefs;
 
 import neilyich.bf.minimization.BooleanFunction;
 import neilyich.bf.minimization.Implicant;
@@ -6,22 +6,24 @@ import neilyich.bf.minimization.Minimizer;
 
 import java.util.*;
 
+// реализация метода неопределенных коэффициентов
 public class CoefsMinimizer implements Minimizer {
     private int variablesCount;
     private Map<Implicant, Coef> allCoefs;
     private Map<Integer, Coef> numbersMapping;
 
-    public List<Implicant> minimize(BooleanFunction f) {
+    // получение минимизированной БФ
+    public BooleanFunction minimize(BooleanFunction f) {
         variablesCount = f.getVariablesCount();
         int maxN = (int) Math.round(Math.pow(2, variablesCount));
         if(f.getOnes().size() == maxN) {
-            return List.of(new Implicant(variablesCount));
+            return BooleanFunction.of(List.of(new Implicant(variablesCount)));
         }
         allCoefs = new HashMap<>();
         Set<Integer> ones = new HashSet<>(f.getOnes());
         List<List<Coef>> system = new ArrayList<>(f.getOnes().size());
         for(int i = 0; i < maxN; i++) {
-            var cfs = coefs(i, ones.contains(i));
+            var cfs = createLine(i, ones.contains(i));
             if(cfs != null) {
                 system.add(cfs);
             }
@@ -33,22 +35,11 @@ public class CoefsMinimizer implements Minimizer {
         }
         System.out.println("\nSystem of equalities after simplification:");
         printSystem(system);
-        if(variablesCount < 5) {
-            System.out.println("\nUsing exact algorithm:");
-            var res = findBestSolution(system);
-            printSystem(system);
-            System.out.println("\nBest solution:");
-            for(var row: system) {
-                row.removeIf((c) -> c.getValue() == null);
-            }
-            printSystem(system);
-            return res;
-        }
-        System.out.println("\nUsing approximate algorithm:");
-        return resolveCoefs(system);
+        return BooleanFunction.of(resolveCoefs(system));
     }
 
-    private List<Coef> coefs(int n, boolean f) {
+    // получение строки системы уравнений для заданного номера набора
+    private List<Coef> createLine(int n, boolean f) {
         boolean[] bits = new boolean[variablesCount];
         List<Integer> vars = new ArrayList<>();
         for (int i = 0; i < bits.length; i++) {
@@ -110,6 +101,7 @@ public class CoefsMinimizer implements Minimizer {
         return null;
     }
 
+    // нахождение минимального решения системы уравнений
     private List<Implicant> resolveCoefs(List<List<Coef>> system) {
         system.sort(Comparator.comparingInt(List::size));
         for (int i = 0; i < system.size(); i++) {
@@ -146,91 +138,7 @@ public class CoefsMinimizer implements Minimizer {
         return implicants;
     }
 
-    private List<Implicant> findBestSolution(List<List<Coef>> system) {
-        var implicants = remapImplicants(system);
-        var mult = Implicant.multAll(implicants);
-        if(mult.isEmpty()) {
-            return new ArrayList<>();
-        }
-        var it = mult.iterator();
-        Implicant bestImplicant = it.next();
-        while(it.hasNext()) {
-            bestImplicant = betterMappedImplicant(bestImplicant, it.next());
-        }
-        getCoefs(bestImplicant).forEach(c -> c.setValue(true));
-        return getImplicants(bestImplicant);
-    }
-
-    private List<Set<Implicant>> remapImplicants(List<List<Coef>> system) {
-        List<Set<Implicant>> res = new ArrayList<>(system.size());
-        Map<Coef, Integer> coefsMapping = new HashMap<>();
-        numbersMapping = new HashMap<>();
-        int varsCount = (int) allCoefs.values().stream().filter(c -> c.getValue() == null).count();
-        int num = 0;
-        for(var line: system) {
-            Set<Implicant> implicants = new HashSet<>(line.size());
-            for(var c: line) {
-                Implicant impl;
-                if(coefsMapping.containsKey(c)) {
-                    int n = coefsMapping.get(c);
-                    impl = new Implicant(varsCount);
-                    impl.set(n, true);
-                }
-                else {
-                    impl = new Implicant(varsCount);
-                    impl.set(num, true);
-                    coefsMapping.put(c, num);
-                    numbersMapping.put(num, c);
-                    num++;
-                }
-                implicants.add(impl);
-            }
-            res.add(implicants);
-        }
-        return res;
-    }
-
-    private Implicant betterMappedImplicant(Implicant r, Implicant l) {
-        var coefsR = getCoefs(r);
-        int wR = 0;
-        for(var c: coefsR) {
-            wR += c.getImplicant().literalsCount();
-        }
-        var coefsL = getCoefs(l);
-        int wL = 0;
-        for(var c: coefsL) {
-            wL += c.getImplicant().literalsCount();
-        }
-        if(wR < wL) {
-            return r;
-        }
-        return l;
-    }
-
-    private Set<Coef> getCoefs(Implicant impl) {
-        Set<Coef> res = new HashSet<>();
-        for(int i = 0; i < impl.getVariablesCount(); i++) {
-            var b = impl.get(i);
-            if(b != null && b) {
-                var coef = numbersMapping.get(i);
-                res.add(coef);
-            }
-        }
-        return res;
-    }
-
-    private List<Implicant> getImplicants(Implicant remappedImplicant) {
-        List<Implicant> res = new ArrayList<>();
-        for(int i = 0; i < remappedImplicant.getVariablesCount(); i++) {
-            var b = remappedImplicant.get(i);
-            if(b != null && b) {
-                var impl = numbersMapping.get(i).getImplicant();
-                res.add(impl);
-            }
-        }
-        return res;
-    }
-
+    // вывод системы уравнений на экран
     private void printSystem(List<List<Coef>> system) {
         system.sort(Comparator.comparingInt(List::size));
         int k = 1;

@@ -7,15 +7,17 @@ import neilyich.bf.minimization.Minimizer;
 import java.util.*;
 import java.util.function.Supplier;
 
+// реализация алгоритма Квайна МакКласски
 public class QuineMinimizer implements Minimizer {
     private int variablesCount;
     private List<List<Implicant>> stages;
 
-    public List<Implicant> minimize(BooleanFunction f) {
+    // получение минимизированной БФ
+    public BooleanFunction minimize(BooleanFunction f) {
         variablesCount = f.getVariablesCount();
         int maxN = (int) Math.round(Math.pow(2, variablesCount));
         if(f.getOnes().size() == maxN) {
-            return List.of(new Implicant(variablesCount));
+            return BooleanFunction.of(List.of(new Implicant(variablesCount)));
         }
         stages = new ArrayList<>();
         log("Minimizing function:\n", f.toString(), "\n");
@@ -24,9 +26,10 @@ public class QuineMinimizer implements Minimizer {
         System.out.println("Finished intersecting implicants:");
         printStages();
         var table = new CoverageTable(new ArrayList<>(intersected), sdnf);
-        return table.calcMinCoverage();
+        return BooleanFunction.of(table.calcMinCoverage());
     }
 
+    // склеивание всех импликант между собой
     private Set<Implicant> intersect(Set<Implicant> implicants, int stage) {
         stages.add(new ArrayList<>(implicants));
         Set<Implicant>[] groups = new Set[variablesCount + 1];
@@ -78,6 +81,7 @@ public class QuineMinimizer implements Minimizer {
     private static final String horizontalSeparator = "-";
     private static final String cornerSeparator = "+";
 
+    // вывод стадий склейки импликант в виде таблицы
     private void printStages() {
         if(stages.get(0).isEmpty()) {
             System.out.println("--------");

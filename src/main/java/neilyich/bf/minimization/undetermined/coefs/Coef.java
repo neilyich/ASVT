@@ -1,4 +1,4 @@
-package neilyich.bf.minimization.indetermined.coefs;
+package neilyich.bf.minimization.undetermined.coefs;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -7,6 +7,7 @@ import neilyich.bf.minimization.Implicant;
 
 import java.util.*;
 
+// коэффициент из метода неопределенных коэффициентов, содержит значение, импликанту, к которой относится и число вхождений в уравнения системы
 @Getter
 @RequiredArgsConstructor
 public class Coef {
@@ -36,23 +37,5 @@ public class Coef {
 
     public void decContainedTimes() {
         containedTimes--;
-    }
-
-    public static List<Set<Coef>> mult(Set<Coef> dnf1, Set<Coef> dnf2) {
-        List<Set<Coef>> res = new LinkedList<>();
-        for(var r: dnf1) {
-            Set<Coef> coefs = new HashSet<>();
-            for(var l: dnf2) {
-                if(l.implicant.equals(r.implicant)) {
-                    coefs.add(r);
-                }
-                else {
-                    coefs.add(r);
-                    coefs.add(l);
-                }
-            }
-            res.add(coefs);
-        }
-        return res;
     }
 }

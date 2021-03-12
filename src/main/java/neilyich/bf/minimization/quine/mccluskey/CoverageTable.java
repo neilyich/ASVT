@@ -8,6 +8,7 @@ import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+// реализация логики работы табоицы покрытия
 public class CoverageTable {
     private final List<Implicant> intersected;
     private final List<Implicant> sdnf;
@@ -21,6 +22,7 @@ public class CoverageTable {
     private final Set<Column> columns;
     private final Set<Row> rows;
 
+    // столбец таблицы (содержит строки, которые в данном столбце имеют метку)
     @Getter
     @RequiredArgsConstructor
     class Column implements Comparable<Column>  {
@@ -32,6 +34,7 @@ public class CoverageTable {
         }
     }
 
+    // строка матрицы (содержит столбцы, которые в данной строке имеют метку)
     @Getter
     @RequiredArgsConstructor
     class Row implements Comparable<Row> {
@@ -43,6 +46,7 @@ public class CoverageTable {
         }
     }
 
+    // построение таблицы по склеенным импликантам и наборам, на которых значение функции равно 1
     public CoverageTable(List<Implicant> intersected, List<Implicant> sdnf) {
         this.intersected = intersected;
         this.sdnf = sdnf;
@@ -74,6 +78,7 @@ public class CoverageTable {
         }
     }
 
+    // вычисление минимального покрытия таблицы
     public List<Implicant> calcMinCoverage() {
         List<Set<Implicant>> terms = new ArrayList<>(columns.size());
         int varsCount = rows.size();
@@ -123,6 +128,7 @@ public class CoverageTable {
         return minSdnf;
     }
 
+    // вывод таблицы на экран
     private void printTable(List<Integer> usedRows) {
         if(usedRows.isEmpty()) {
             System.out.println("--------");
@@ -175,6 +181,7 @@ public class CoverageTable {
         System.out.println();
     }
 
+    // подсчет веса полученного покрытия таблицы
     private int calcWeight(Implicant tableCoverage) {
         int varsCount = rows.size();
         int w = 0;

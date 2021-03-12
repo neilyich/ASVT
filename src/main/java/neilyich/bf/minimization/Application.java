@@ -1,6 +1,6 @@
 package neilyich.bf.minimization;
 
-import neilyich.bf.minimization.indetermined.coefs.CoefsMinimizer;
+import neilyich.bf.minimization.undetermined.coefs.CoefsMinimizer;
 import neilyich.bf.minimization.quine.mccluskey.QuineMinimizer;
 
 import java.io.FileOutputStream;
@@ -17,6 +17,7 @@ public class Application {
         test(vector);
     }
 
+    // получение вектора БФ в зависимости от аргументов
     private static String getBFVector(String[] args) throws IOException {
         Map<String, String> parameters = new HashMap<>();
         for(var arg : args) {
@@ -47,14 +48,15 @@ public class Application {
         return vector;
     }
 
+    // проведение минимизации функции заданным алгоритмом
     private static BooleanFunction minimize(BooleanFunction f, Minimizer minimizer) {
-        var impls = minimizer.minimize(f);
-        var min = BooleanFunction.of(impls);
+        var min = minimizer.minimize(f);
         System.out.println("\n\nMinimized function:");
         System.out.println(min);
         return min;
     }
 
+    // минимизация функции двумя алгоритмами и сравнение результатов
     private static boolean test(String vector) {
         System.out.println("\n\nminimizing f = " + vector + ":");
         System.out.println("Sdnf: " + new BooleanFunction(vector).toString());
@@ -70,8 +72,8 @@ public class Application {
         System.out.println();
         var dif1 = f1.diff(f2);
         var dif2 = f2.diff(f1);
-        System.out.println("Implicants only in Quine McCluskey algorithm    : " + dif1.stream().sorted(Comparator.naturalOrder()).collect(Collectors.toList()).toString());
-        System.out.println("Implicants only in Undetermined coefs algorithm : " + dif2.stream().sorted(Comparator.naturalOrder()).collect(Collectors.toList()).toString());
+        System.out.println("Implicants only in Quine McCluskey algorithm result    : " + dif1.stream().sorted(Comparator.naturalOrder()).collect(Collectors.toList()).toString());
+        System.out.println("Implicants only in Undetermined coefs algorithm result : " + dif2.stream().sorted(Comparator.naturalOrder()).collect(Collectors.toList()).toString());
         if(f1.isSame(f2)) {
             System.out.println("Same functions");
             int cmp = f1.compareSame(f2);
