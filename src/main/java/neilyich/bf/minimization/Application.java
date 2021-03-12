@@ -67,8 +67,8 @@ public class Application {
         System.out.println("\n\nQUINE MCCLUSSKEY ALGORITHM:\n");
         var f1 = minimize(new BooleanFunction(vector), quineMinimizer);
         System.out.println("\n\n\n----------------\n\n");
-        System.out.println("Quine McCluskey algorithm    : " + f1.toString() + " ; weight = " + f1.weight());
-        System.out.println("Undetermined coefs algorithm : " + f2.toString() + " ; weight = " + f2.weight());
+        System.out.println("Quine McCluskey algorithm    : " + f1.toString() + " ; weight = " + f1.weight() + "; vector = " + f1.getVector());
+        System.out.println("Undetermined coefs algorithm : " + f2.toString() + " ; weight = " + f2.weight() + "; vector = " + f1.getVector());
         System.out.println();
         var dif1 = f1.diff(f2);
         var dif2 = f2.diff(f1);

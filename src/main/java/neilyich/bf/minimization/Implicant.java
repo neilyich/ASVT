@@ -151,12 +151,12 @@ public class Implicant implements Comparable<Implicant>{
         for (Boolean l : literals) {
             if (l != null) {
                 if (l) {
-                    builder.append('1');
+                    builder.insert(0, '1');
                 } else {
-                    builder.append('0');
+                    builder.insert(0, '0');
                 }
             } else {
-                builder.append('*');
+                builder.insert(0, '*');
             }
         }
         return builder.toString();

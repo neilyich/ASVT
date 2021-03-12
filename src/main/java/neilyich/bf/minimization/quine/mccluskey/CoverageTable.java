@@ -8,7 +8,7 @@ import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-// реализация логики работы табоицы покрытия
+// реализация логики работы таблицы покрытия
 public class CoverageTable {
     private final List<Implicant> intersected;
     private final List<Implicant> sdnf;
