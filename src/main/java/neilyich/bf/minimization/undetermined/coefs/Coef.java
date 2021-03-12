@@ -7,15 +7,13 @@ import neilyich.bf.minimization.Implicant;
 
 import java.util.*;
 
-// коэффициент из метода неопределенных коэффициентов, содержит значение, импликанту, к которой относится и число вхождений в уравнения системы
+// коэффициент из метода неопределенных коэффициентов, содержит значение и импликанту, к которой относится
 @Getter
 @RequiredArgsConstructor
 public class Coef {
     @Setter
     private Boolean value;
     private final Implicant implicant;
-    @Setter
-    private int containedTimes;
 
     @Override
     public boolean equals(Object o) {
@@ -31,11 +29,8 @@ public class Coef {
         return Objects.hash(value, implicant);
     }
 
-    public void incContainedTimes() {
-        containedTimes++;
-    }
-
-    public void decContainedTimes() {
-        containedTimes--;
+    @Override
+    public String toString() {
+        return "K( " + implicant.toString() + " )";
     }
 }
